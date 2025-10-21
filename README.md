@@ -1,2 +1,2 @@
-# hurd_rnn
+# Using RNN to discover individual differences in human decision-making 
 Extended Joshua Peterson’s risky choice research by addressing limitations in capturing individual differences and temporal behavioral effects, replacing the original neural network with recurrent architectures to capture temporal dependencies to advance decision-making theory
