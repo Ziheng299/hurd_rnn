@@ -59,7 +59,3 @@ Extended Joshua Peterson’s risky choice research by addressing limitations in 
 * Evaluate (u(x)) on a grid to compare **baseline** vs **state-conditioned** (u(x\mid h_t)).
 * Report **diagnostics**: local curvature (RRA/ARA), loss-kink (u'(0^+)/u'(0^-)), and their trajectories over trials.
 * Counterfactual rollouts: flip last reward/forgone, re-roll (h_t), re-plot (u(x\mid h_{t+1})) and (P(B)).
-
-## Contact
-
-Questions or ideas? Open an issue or reach out to the maintainer.
