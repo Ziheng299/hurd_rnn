@@ -85,22 +85,18 @@ def setup_device(device_arg: str) -> torch.device:
 
 
 def save_results(results: dict, filepath: str):
-    """Save results to JSON file."""
+    """
+    Save results to JSON file.
+    """
     serializable_results = {}
     for pct, result in results.items():
         serializable_results[str(pct)] = {
             'percentage': result['percentage'],
             'n_train_samples': result['n_train_samples'],
             'n_test_samples': result['n_test_samples'],
-            'history': {
-                'train_loss': result['history']['train_loss'],
-                'train_accuracy': result['history']['train_accuracy'],
-                'test_loss': result['history']['test_loss'],
-                'test_accuracy': result['history']['test_accuracy'],
-                'final_test_loss': result['history']['final_test_loss'],
-                'final_test_accuracy': result['history']['final_test_accuracy'],
-                'final_per_trial_accuracy': result['history']['final_per_trial_accuracy']
-            }
+            'final_test_loss': result['history']['final_test_loss'],
+            'final_test_accuracy': result['history']['final_test_accuracy'],
+            'final_per_trial_accuracy': result['history']['final_per_trial_accuracy']
         }
     
     with open(filepath, 'w') as f:
