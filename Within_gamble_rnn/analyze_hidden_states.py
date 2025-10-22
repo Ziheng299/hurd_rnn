@@ -137,15 +137,14 @@ def compute_utility_for_cluster(model,
     model = model.to(device)
     
     with torch.no_grad():
-        h = torch.tensor(centroid_h, dtype=torch.float32).unsqueeze(0).to(device)  # (1, H)
+        h = torch.tensor(centroid_h, dtype=torch.float32, device=device).unsqueeze(0)  # (1, H)
+        outcomes = torch.tensor(outcome_range, dtype=torch.float32, device=device).unsqueeze(1)  # (N, 1)
         
-        utilities = []
-        for outcome_val in outcome_range:
-            outcome_tensor = torch.tensor([[outcome_val]], dtype=torch.float32).to(device)  # (1, 1)
-            u = model.utility_net(outcome_tensor, h)
-            utilities.append(u.item())
+        batch_size = outcomes.shape[0]
+        h_expanded = h.expand(batch_size, -1)  # (N, H)
         
-        utilities = np.array(utilities)
+        utilities_tensor = model.utility_net(outcomes, h_expanded)  # (N, 1)
+        utilities = utilities_tensor.squeeze(1).cpu().numpy()  # (N,)
     
     return utilities
 
@@ -153,20 +152,19 @@ def compute_utility_for_cluster(model,
 def plot_utility_functions_by_cluster(model,
                                      centroids: np.ndarray,
                                      labels: np.ndarray,
-                                     outcome_range: np.ndarray = None,
-                                     device: torch.device = None,
+                                     device: torch.device,
                                      save_path: str = None):
     """
-    Plot utility functions for each cluster centroid.
+    Plot utility functions for each cluster.
     """
-    if outcome_range is None:
-        outcome_range = np.linspace(-200, 200, 400) 
-    
-    if device is None:
-        device = torch.device('cpu')
-    
+    outcome_range = np.linspace(-200, 200, 400)
     n_clusters = centroids.shape[0]
     colors = plt.cm.tab10(np.arange(n_clusters))
+    
+    print("\nComputing utility functions for each cluster...")
+    
+    model = model.to(device)
+    model.eval()
     
     plt.figure(figsize=(12, 7))
     
@@ -174,9 +172,7 @@ def plot_utility_functions_by_cluster(model,
         print(f"  Cluster {cluster_id}...", end=' ')
         
         centroid_h = centroids[cluster_id]
-        utilities = compute_utility_for_cluster(
-            model, centroid_h, outcome_range, device
-        )
+        utilities = compute_utility_for_cluster(model, centroid_h, outcome_range, device)
         
         cluster_size = (labels == cluster_id).sum()
         
@@ -184,10 +180,8 @@ def plot_utility_functions_by_cluster(model,
                 linewidth=2.5, color=colors[cluster_id],
                 label=f'Cluster {cluster_id} (n={cluster_size})',
                 alpha=0.8)
-        
         print(f"Done")
     
-    # Add reference lines
     plt.axhline(y=0, color='gray', linestyle='--', alpha=0.5, linewidth=1)
     plt.axvline(x=0, color='gray', linestyle='--', alpha=0.5, linewidth=1)
     
@@ -196,7 +190,7 @@ def plot_utility_functions_by_cluster(model,
     plt.title('Utility Functions by Hidden State Cluster', fontsize=14, fontweight='bold')
     plt.legend(fontsize=10, loc='best')
     plt.grid(True, alpha=0.3)
-    plt.xlim(-200, 200) 
+    plt.xlim(-200, 200)
     plt.tight_layout()
     
     if save_path:
@@ -222,6 +216,9 @@ def plot_utility_features_by_cluster(model,
     outcome_range = np.linspace(-200, 200, 400)
     
     features = []
+
+    model = model.to(device)
+    model.eval()
     
     for cluster_id in range(n_clusters):
         centroid_h = centroids[cluster_id]
