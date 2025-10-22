@@ -445,7 +445,10 @@ def complete_analysis_pipeline(hidden_states_path: str,
     Complete analysis: PCA + Elbow + Utility visualization.
     """
     os.makedirs(output_dir, exist_ok=True)
-    device = torch.device(device_str if torch.cuda.is_available() else 'cpu')
+    if device_str == 'auto':
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    else:
+        device = torch.device(device_str)
     
     print("="*80)
     print("COMPLETE HIDDEN STATE ANALYSIS")
