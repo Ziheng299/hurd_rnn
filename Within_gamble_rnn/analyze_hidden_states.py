@@ -143,6 +143,9 @@ def compute_utility_for_cluster(model,
         batch_size = outcomes.shape[0]
         h_expanded = h.expand(batch_size, -1)  # (N, H)
         
+        outcomes = outcomes.to(device)
+        h_expanded = h_expanded.to(device)
+        
         utilities_tensor = model.utility_net(outcomes, h_expanded)  # (N, 1)
         utilities = utilities_tensor.squeeze(1).cpu().numpy()  # (N,)
     
@@ -508,6 +511,7 @@ def complete_analysis_pipeline(hidden_states_path: str,
     
     model = create_model(model_type='recurrent', **model_kwargs)
     model.load_state_dict(torch.load(model_path, map_location=device))
+    model = model.to(device)
     model.eval()
     
     # Plot utility functions

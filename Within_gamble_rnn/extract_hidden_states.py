@@ -52,7 +52,7 @@ def extract_hidden_states_from_model(model,
                 else:
                     batch_device[k] = v
             
-            output = model(batch, return_hidden_states=True)
+            output = model(batch_device, return_hidden_states=True)
             
             hidden_states = output['hidden_states'].cpu().numpy()  # (B, 5, H)
             
