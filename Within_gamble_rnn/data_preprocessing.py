@@ -35,7 +35,7 @@ def load_and_merge_data(obj_path: str, subj_path: str) -> pd.DataFrame:
     Assumes consistent 'uniqueID' key. Falls back to 'Problem' if needed.
     """
     obj_df = pd.read_csv(obj_path)
-    subj_df = pd.read_csv(subj_path)
+    subj_df = pd.read_csv(subj_path, low_memory=False)
 
     merge_key = "uniqueID" if ("uniqueID" in obj_df.columns and "uniqueID" in subj_df.columns) else "Problem"
     merged_df = pd.merge(subj_df, obj_df, on=merge_key)

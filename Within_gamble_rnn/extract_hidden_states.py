@@ -43,26 +43,54 @@ def extract_hidden_states_from_model(model,
             if batch_idx % 100 == 0:
                 print(f"  Processed {batch_idx}/{len(dataloader)} batches...")
             
-            batch = {k: v.to(device) if torch.is_tensor(v) else v 
-                    for k, v in batch.items()}
+            #batch = {k: v.to(device) if torch.is_tensor(v) else v 
+                    #for k, v in batch.items()}
+            batch_device = {}
+            for k, v in batch.items():
+                if torch.is_tensor(v):
+                    batch_device[k] = v.to(device)
+                else:
+                    batch_device[k] = v
             
             output = model(batch, return_hidden_states=True)
             
             hidden_states = output['hidden_states'].cpu().numpy()  # (B, 5, H)
             
             all_hidden_states.append(hidden_states)
-            all_subject_ids.append(batch['subject_id'].cpu().numpy())
-            all_problem_ids.append(batch['problem_id'].cpu().numpy())
+            
+            # subject_id and problem_id are lists, not tensors
+            if isinstance(batch['subject_id'], list):
+                all_subject_ids.extend(batch['subject_id'])
+            else:
+                all_subject_ids.append(batch['subject_id'].cpu().numpy())
+            
+            if isinstance(batch['problem_id'], list):
+                all_problem_ids.extend(batch['problem_id'])
+            else:
+                all_problem_ids.append(batch['problem_id'].cpu().numpy())
+            
+            # These are tensors
             all_choices.append(batch['choices'].cpu().numpy())
             all_contexts.append(batch['contexts'].cpu().numpy())
             all_problem_features.append(batch['problem_features'].cpu().numpy())
             all_feedback_conditions.append(batch['feedback_condition'].cpu().numpy())
     
+    # Concatenate - handle lists vs arrays
+    if isinstance(all_subject_ids[0], (list, int, str)):
+        subject_ids = np.array(all_subject_ids)
+    else:
+        subject_ids = np.concatenate(all_subject_ids, axis=0)
+    
+    if isinstance(all_problem_ids[0], (list, int, str)):
+        problem_ids = np.array(all_problem_ids)
+    else:
+        problem_ids = np.concatenate(all_problem_ids, axis=0)
+    
     # Concatenate all batches
     data = {
         'hidden_states': np.concatenate(all_hidden_states, axis=0),  # (N, 5, H)
-        'subject_ids': np.concatenate(all_subject_ids, axis=0),       # (N,)
-        'problem_ids': np.concatenate(all_problem_ids, axis=0),       # (N,)
+        'subject_ids': subject_ids,                                   # (N,)
+        'problem_ids': problem_ids,                                   # (N,)
         'choices': np.concatenate(all_choices, axis=0),               # (N, 5)
         'contexts': np.concatenate(all_contexts, axis=0),             # (N, 5, 4)
         'problem_features': np.concatenate(all_problem_features, axis=0),  # (N, 6)

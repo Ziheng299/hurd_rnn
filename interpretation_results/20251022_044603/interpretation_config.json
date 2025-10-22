@@ -1,0 +1,17 @@
+{
+  "model_path": "/Users/ziheng/Desktop/NYU/RNN4Cognitive/hurd_rnn/Within_gamble_rnn/results/20251022_010455/rnn_model.pt",
+  "obj_path": "/Users/ziheng/Desktop/NYU/RNN4Cognitive/hurd_rnn/Data/c13k_obj_feats_uid.csv",
+  "subj_path": "/Users/ziheng/Desktop/NYU/RNN4Cognitive/hurd_rnn/Data/c13k_subject_data_uid.csv",
+  "output_dir": "/Users/ziheng/Desktop/NYU/RNN4Cognitive/hurd_rnn/interpretation_results",
+  "hidden_state_dim": 16,
+  "utility_hidden_dim": 32,
+  "rnn_type": "gru",
+  "use_subject_h0": false,
+  "n_clusters": null,
+  "skip_extraction": false,
+  "skip_analysis": false,
+  "test_size": 0.2,
+  "random_state": 42,
+  "batch_size": 64,
+  "device": "auto"
+}
